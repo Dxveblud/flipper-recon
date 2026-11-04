@@ -1,0 +1,5 @@
+node_modules/
+_fake.mjs
+_*.mjs
+*.log
+*.bin

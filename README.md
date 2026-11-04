@@ -1,0 +1,69 @@
+# Flipper Recon
+
+Pannello web per comandare una scheda **ESP32-S2** in ricognizione Wi-Fi
+(scan AP, station, select, monitor) da `https://flipper.dxveblud.dev`, in tempo reale.
+
+Solo **ricognizione passiva**. Le funzioni d'attacco di Marauder (deauth,
+handshake/PMKID, evil portal, beacon/probe flood) **non** sono esposte sul sito,
+per scelta: restano su Marauder, da usare in locale sulla board.
+
+```
+[ESP32-S2: firmware agente]  --WSS-->  [nginx + relay sulla VM]  <--WSS--  [browser: /flipper]
+      scan/station/monitor              127.0.0.1:8787 (systemd)           pannello (login)
+```
+
+## Struttura
+```
+firmware/flipper_agent.ino   firmware agente (secret da compilare prima del flash)
+relay/server.js              relay WebSocket (whitelist comandi; legge panel.html ad ogni richiesta)
+relay/panel.html             il PANNELLO (il "sito") — modifica qui per cambiare la UI
+relay/package.json
+deploy/nginx-flipper.conf    sito nginx per flipper.dxveblud.dev
+deploy/flipper-relay.service unit systemd (token da mettere sulla VM)
+```
+
+## Aggiornare il sito = `git push`
+Il relay legge `relay/panel.html` ad **ogni richiesta**, e la VM fa `git pull`
+da sola ogni minuto. Quindi per cambiare la grafica/funzioni del pannello:
+
+```bash
+# modifica relay/panel.html, poi:
+git add relay/panel.html
+git commit -m "ritocco pannello"
+git push
+```
+
+Entro ~1 minuto il sito è aggiornato, **senza riavviare niente**.
+(Se invece modifichi `relay/server.js`, serve un riavvio: `sudo systemctl restart flipper-relay`.)
+
+## Setup sulla VM (una volta sola)
+```bash
+# 1. clona
+cd ~ && git clone <URL_REPO> flipper-recon
+cd flipper-recon/relay && npm install
+
+# 2. servizio (metti i TOKEN veri nel file prima di avviare)
+sudo cp ../deploy/flipper-relay.service /etc/systemd/system/
+sudo nano /etc/systemd/system/flipper-relay.service
+sudo systemctl daemon-reload && sudo systemctl enable --now flipper-relay
+
+# 3. nginx (cert + login: vedi commenti in deploy/nginx-flipper.conf)
+sudo cp ../deploy/nginx-flipper.conf /etc/nginx/sites-available/flipper
+sudo ln -sf /etc/nginx/sites-available/flipper /etc/nginx/sites-enabled/flipper
+sudo nginx -t && sudo systemctl reload nginx
+
+# 4. auto-pull ogni minuto (push-to-deploy)
+( crontab -l 2>/dev/null; echo "* * * * * git -C /home/ubuntu/flipper-recon pull -q" ) | crontab -
+```
+
+## Firmware (board)
+Board: **ESP32S2 Dev Module**. Libreria: **WebSockets** (Markus Sattler).
+Prima del flash compila in cima a `firmware/flipper_agent.ino`:
+`WIFI_SSID`, `WIFI_PASS`, `DEVICE_TOKEN` (= quello del relay). `RELAY_HOST` è già `flipper.dxveblud.dev`.
+Flash: tieni **BOOT** + tocca **RST**, poi carica (USB nativo). Opzione **USB CDC On Boot = Enabled** per avere i log.
+
+## Note
+- La board deve restare alimentata e in copertura della rete Wi-Fi configurata.
+- Station/Monitor: la radio singola dell'S2 stacca l'uplink per ~6s e poi riconnette → i risultati arrivano a raffiche.
+- Login pannello: utente + password in `/etc/nginx/.flipper_htpasswd` (sulla VM, non in git).
+- I token e le password Wi-Fi **non** stanno nel repo.

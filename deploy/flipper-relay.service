@@ -1,0 +1,21 @@
+# systemd unit per il relay.
+# I TOKEN sono segreti: sostituiscili sulla VM, NON committarli.
+#   sudo cp deploy/flipper-relay.service /etc/systemd/system/flipper-relay.service
+#   sudo nano /etc/systemd/system/flipper-relay.service   # metti i token veri
+#   sudo systemctl daemon-reload && sudo systemctl enable --now flipper-relay
+
+[Unit]
+Description=Flipper Recon relay
+After=network.target
+
+[Service]
+WorkingDirectory=/home/ubuntu/flipper-recon/relay
+Environment=DEVICE_TOKEN=CHANGEME_DEVICE_TOKEN
+Environment=VIEWER_TOKEN=CHANGEME_VIEWER_TOKEN
+Environment=PORT=8787
+ExecStart=/usr/bin/node server.js
+Restart=always
+User=ubuntu
+
+[Install]
+WantedBy=multi-user.target

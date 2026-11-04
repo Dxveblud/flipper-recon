@@ -1,0 +1,13 @@
+{
+  "name": "flipper-relay",
+  "version": "1.0.0",
+  "description": "Relay WebSocket tra agente ESP32-S2 (recon) e pannello web. Solo comandi di ricognizione.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

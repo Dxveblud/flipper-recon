@@ -62,6 +62,9 @@ volatile uint32_t pktTotal = 0;
 
 String pendingSend = ""; // risultato da spedire quando il WS torna connesso
 
+bool surveying = false;  // modalita site survey: RSSI della rete connessa in live
+uint32_t lastSurvey = 0;
+
 // ---------------- util ----------------
 String macToStr(const uint8_t* m) {
   char b[18];
@@ -226,7 +229,12 @@ void handleCommand(const String& msg){
   }
   else if (cmd=="stations"){ startSniff(OP_STATIONS); }
   else if (cmd=="monitor"){ startSniff(OP_MONITOR); }
+  else if (cmd=="survey"){
+    surveying = true; lastSurvey = 0;                 // RSSI live della rete connessa
+    wsSend("{\"type\":\"status\",\"state\":\"survey\"}");
+  }
   else if (cmd=="stop"){
+    surveying = false;
     if (sniffActive){ esp_wifi_set_promiscuous(false); sniffActive=false; pendingOp=OP_NONE; ensureSta(); }
     wsSend("{\"type\":\"status\",\"state\":\"idle\"}");
   }
@@ -272,5 +280,10 @@ void loop(){
   // se c'e' un risultato in attesa e siamo connessi, spediscilo
   if (pendingSend.length() && WiFi.status()==WL_CONNECTED && ws.isConnected()){
     wsSend(pendingSend); pendingSend="";
+  }
+  // site survey: RSSI live della rete connessa, ogni ~700ms, uplink attivo
+  if (surveying && WiFi.status()==WL_CONNECTED && ws.isConnected() && millis()-lastSurvey >= 700){
+    lastSurvey = millis();
+    wsSend("{\"type\":\"rssi\",\"rssi\":" + String(WiFi.RSSI()) + ",\"ssid\":\"" + jsonEscape(WiFi.SSID()) + "\"}");
   }
 }

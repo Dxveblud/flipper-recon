@@ -30,8 +30,18 @@ if (!DEVICE_TOKEN || !VIEWER_TOKEN) {
   process.exit(1);
 }
 
-const ALLOWED_CMDS = new Set(['scan', 'select', 'stations', 'monitor', 'stop']);
+const ALLOWED_CMDS = new Set(['scan', 'select', 'stations', 'monitor', 'survey', 'stop']);
 const snapshot = { status: null, aps: null, selected: null, stations: null, monitor: null };
+
+// --- OUI vendor lookup (offline, registro IEEE) ---
+let OUI = {};
+try { OUI = JSON.parse(fs.readFileSync(path.join(__dirname, 'oui.json'), 'utf8')); console.log('OUI caricati:', Object.keys(OUI).length); }
+catch { console.warn('oui.json non trovato: produttore non disponibile'); }
+function vendorOf(mac) {
+  if (!mac || mac.length < 8) return null;
+  if (parseInt(mac.slice(0, 2), 16) & 0x02) return 'casuale';   // MAC randomizzato (privacy)
+  return OUI[mac.slice(0, 8).replace(/:/g, '').toUpperCase()] || null;
+}
 
 let agentSocket = null;
 const uiSockets = new Set();
@@ -97,6 +107,9 @@ wss.on('connection', (ws) => {
       if (!agentSocket) { ws.send(JSON.stringify({ type: 'error', msg: 'agente offline' })); return; }
       try { agentSocket.send(JSON.stringify(msg)); } catch {}
     } else if (ws.role === 'agent') {
+      // arricchisci con il produttore (dal MAC) prima di inoltrare
+      if (msg.type === 'aps' && Array.isArray(msg.aps)) for (const a of msg.aps) a.vendor = vendorOf(a.bssid);
+      if (msg.type === 'stations' && Array.isArray(msg.stations)) for (const s of msg.stations) s.vendor = vendorOf(s.mac);
       if (msg.type && snapshot.hasOwnProperty(msg.type)) snapshot[msg.type] = msg;
       if (msg.type === 'status') snapshot.status = msg;
       broadcastToUI(msg);

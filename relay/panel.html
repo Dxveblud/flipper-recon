@@ -8,120 +8,99 @@
   :root{
     --bg:#0a0d12; --bg2:#0e1319; --panel:#121820; --panel2:#171f2a; --line:#232e3b;
     --txt:#e9eef4; --dim:#8294a8; --faint:#56677a;
-    --accent:#ff8a2b; --accent2:#ffb36b; --cyan:#35d0e0; --ok:#3ddc84; --bad:#ff5a5a; --warn:#f5c451;
+    --accent:#ff8a2b; --accent2:#ffb36b; --cyan:#35d0e0; --ok:#3ddc84; --lime:#9fe24a; --bad:#ff5a5a; --warn:#f5c451;
     --sel:#15241a; --sel-line:#2a6b3f;
     --radius:14px; --shadow:0 2px 20px rgba(0,0,0,.35);
     --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
-  *{box-sizing:border-box}
-  html,body{margin:0}
+  *{box-sizing:border-box} html,body{margin:0}
   body{
-    background:
-      radial-gradient(1200px 500px at 85% -10%, rgba(255,138,43,.07), transparent 60%),
-      radial-gradient(900px 500px at -10% 10%, rgba(53,208,224,.06), transparent 55%),
-      var(--bg);
-    color:var(--txt); font-family:var(--sans); font-size:14px; line-height:1.5;
-    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background:radial-gradient(1200px 500px at 85% -10%, rgba(255,138,43,.07), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(53,208,224,.06), transparent 55%),var(--bg);
+    color:var(--txt); font-family:var(--sans); font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased; min-height:100vh;
   }
-
-  /* ---------- header ---------- */
-  header{
-    position:sticky; top:0; z-index:20; backdrop-filter:blur(10px);
-    background:rgba(10,13,18,.78); border-bottom:1px solid var(--line);
-    display:flex; align-items:center; gap:14px; padding:12px 18px;
-  }
+  header{position:sticky; top:0; z-index:20; backdrop-filter:blur(10px); background:rgba(10,13,18,.78); border-bottom:1px solid var(--line); display:flex; align-items:center; gap:14px; padding:12px 18px}
   .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.5px; font-size:15px}
-  .brand .mark{
-    width:26px;height:26px;border-radius:7px;display:grid;place-items:center;
-    background:linear-gradient(135deg,var(--accent),#e2641a); color:#1b1206; font-weight:900; box-shadow:0 0 14px rgba(255,138,43,.4);
-  }
+  .brand .mark{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#e2641a); color:#1b1206; font-weight:900; box-shadow:0 0 14px rgba(255,138,43,.4)}
   .brand b{color:var(--accent)}
   .conn{display:flex; align-items:center; gap:8px; margin-left:auto; font-size:12.5px; color:var(--dim)}
-  .dot{width:9px;height:9px;border-radius:50%;background:var(--bad);box-shadow:0 0 0 0 rgba(255,90,90,.5)}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--bad)}
   .dot.on{background:var(--ok);animation:pulse 2s infinite}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(61,220,132,.45)}70%{box-shadow:0 0 0 7px rgba(61,220,132,0)}100%{box-shadow:0 0 0 0 rgba(61,220,132,0)}}
   .device{font-family:var(--mono); color:var(--faint); font-size:11.5px; border:1px solid var(--line); padding:3px 8px; border-radius:999px}
   @media(max-width:560px){ .device{display:none} }
-
   main{max-width:960px; margin:0 auto; padding:18px 16px 40px; display:grid; gap:16px}
-
-  /* ---------- cards ---------- */
   .card{background:linear-gradient(180deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden}
   .card .hd{display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line)}
   .card .hd h2{margin:0; font-size:11px; letter-spacing:1.4px; text-transform:uppercase; color:var(--dim); font-weight:700}
   .card .hd .count{margin-left:auto; font-family:var(--mono); font-size:11.5px; color:var(--accent2); background:rgba(255,138,43,.1); border:1px solid rgba(255,138,43,.25); padding:2px 9px; border-radius:999px}
   .card .bd{padding:14px 16px}
-
-  /* ---------- buttons ---------- */
   .toolbar{display:flex; gap:9px; flex-wrap:wrap; align-items:center}
-  button{
-    display:inline-flex; align-items:center; gap:7px; cursor:pointer; font-family:var(--sans); font-size:13.5px; font-weight:600;
-    color:var(--txt); background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:10px 15px;
-    transition:transform .08s, border-color .15s, background .15s, color .15s, box-shadow .15s;
-  }
+  button{display:inline-flex; align-items:center; gap:7px; cursor:pointer; font-family:var(--sans); font-size:13.5px; font-weight:600; color:var(--txt); background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:10px 15px; transition:transform .08s, border-color .15s, background .15s, color .15s}
   button .ic{font-size:15px; line-height:1}
   button:hover:not(:disabled){border-color:var(--accent); color:var(--accent2); transform:translateY(-1px)}
-  button:active:not(:disabled){transform:translateY(0)}
   button:disabled{opacity:.38; cursor:not-allowed}
   button.primary{background:linear-gradient(135deg,var(--accent),#ee6f1f); border-color:transparent; color:#1b1206; box-shadow:0 4px 16px rgba(255,138,43,.28)}
-  button.primary:hover:not(:disabled){color:#1b1206; filter:brightness(1.06)}
+  button.on{border-color:var(--ok); color:var(--ok)}
   button.ghost{background:transparent}
-
   .spin{display:inline-block; width:13px;height:13px;border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:rot .7s linear infinite; vertical-align:-2px}
   @keyframes rot{to{transform:rotate(360deg)}}
-
-  /* ---------- lists ---------- */
   .rows{display:flex; flex-direction:column; gap:7px}
-  .row{display:grid; grid-template-columns:1fr auto; gap:4px 12px; align-items:center;
-    padding:11px 13px; border:1px solid var(--line); border-radius:11px; background:var(--panel2); cursor:pointer; transition:.12s}
+  .row{display:grid; grid-template-columns:1fr auto; gap:4px 12px; align-items:center; padding:11px 13px; border:1px solid var(--line); border-radius:11px; background:var(--panel2); cursor:pointer; transition:.12s}
   .row:hover{border-color:#34435a; background:#1b2531}
-  .row.sel{background:var(--sel); border-color:var(--sel-line); box-shadow:0 0 0 1px rgba(61,220,132,.15) inset}
-  .row .main{display:flex; align-items:center; gap:9px; min-width:0}
+  .row.sel{background:var(--sel); border-color:var(--sel-line)}
   .row .name{font-weight:650; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
   .row .name.hidden{color:var(--faint); font-style:italic; font-weight:500}
   .row .bssid{font-family:var(--mono); font-size:11.5px; color:var(--faint); margin-top:1px}
-  .row .meta{display:flex; align-items:center; gap:8px; justify-self:end}
+  .row .vendor{font-size:11px; color:var(--cyan); margin-top:2px}
+  .row .vendor.rnd{color:var(--faint)}
+  .meta{display:flex; align-items:center; gap:8px; justify-self:end}
   .badge{font-family:var(--mono); font-size:10.5px; color:var(--dim); border:1px solid var(--line); border-radius:6px; padding:2px 6px; white-space:nowrap}
   .badge.ch{color:var(--cyan); border-color:rgba(53,208,224,.3); background:rgba(53,208,224,.07)}
   .badge.open{color:var(--warn); border-color:rgba(245,196,81,.3); background:rgba(245,196,81,.07)}
-  .check{color:var(--ok); font-weight:800}
-
-  /* signal meter */
   .sig{display:flex; align-items:flex-end; gap:2px; height:16px}
   .sig i{width:3.5px; border-radius:1px; background:var(--line)}
-  .sig i.on{background:var(--ok)}
-  .sig i.on.mid{background:var(--warn)}
-  .sig i.on.low{background:var(--bad)}
+  .sig i.on{background:var(--ok)} .sig i.on.mid{background:var(--warn)} .sig i.on.low{background:var(--bad)}
   .sig .rssi{font-family:var(--mono); font-size:11px; color:var(--dim); margin-left:6px; align-self:center}
-
   .empty{color:var(--faint); text-align:center; padding:22px 10px; font-size:13px}
   .empty .big{font-size:26px; opacity:.5; display:block; margin-bottom:6px}
-
-  /* selected banner */
   .target{display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:12px 14px; border:1px dashed var(--line); border-radius:11px; background:rgba(53,208,224,.04)}
   .target.none{color:var(--faint)}
   .target .ssid{font-weight:800; color:var(--accent2)}
   .target .pill{font-family:var(--mono); font-size:11.5px; color:var(--dim); border:1px solid var(--line); padding:2px 9px; border-radius:999px}
-
-  #monBox{margin-top:10px; font-size:13px; color:var(--dim)}
-  #monBox b{color:var(--cyan)}
-
+  #monBox{margin-top:10px; font-size:13px; color:var(--dim)} #monBox b{color:var(--cyan)}
   .scope{margin-top:12px; padding-top:10px; border-top:1px dashed var(--line); font-size:11.5px; color:var(--faint); display:flex; gap:7px; align-items:flex-start}
 
-  /* log */
+  /* channel analysis */
+  .chan{display:flex; align-items:flex-end; gap:5px; height:56px; margin:4px 2px 12px; padding-bottom:16px; position:relative}
+  .chan .c{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; position:relative}
+  .chan .c .bar{width:100%; max-width:26px; border-radius:4px 4px 0 0; background:linear-gradient(180deg,var(--cyan),#1b7f8a); min-height:2px; transition:height .2s}
+  .chan .c.busy .bar{background:linear-gradient(180deg,var(--accent),#c85414)}
+  .chan .c .lab{position:absolute; bottom:-16px; font-size:10px; color:var(--faint); font-family:var(--mono)}
+  .chan .c .n{font-size:10px; color:var(--dim); margin-bottom:2px; font-family:var(--mono)}
+
+  /* survey */
+  .survey{display:grid; grid-template-columns:auto 1fr; gap:16px; align-items:center}
+  @media(max-width:520px){ .survey{grid-template-columns:1fr; text-align:center} }
+  .gauge{position:relative; width:150px; height:150px; justify-self:center}
+  .gauge .num{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center}
+  .gauge .num .v{font-size:34px; font-weight:800; font-family:var(--mono); line-height:1}
+  .gauge .num .u{font-size:11px; color:var(--dim)}
+  .qual{font-size:20px; font-weight:800; margin-bottom:4px}
+  .qbar{height:10px; border-radius:6px; background:var(--panel2); overflow:hidden; border:1px solid var(--line)}
+  .qbar i{display:block; height:100%; width:0; transition:width .25s, background .25s}
+  .survey .ssidname{color:var(--dim); font-size:12.5px; margin-top:8px; font-family:var(--mono)}
+  #spark{width:100%; height:56px; margin-top:12px; display:block}
+
   details.log{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); overflow:hidden}
   details.log summary{list-style:none; cursor:pointer; padding:11px 16px; font-size:11px; letter-spacing:1.4px; text-transform:uppercase; color:var(--dim); font-weight:700; display:flex; align-items:center; gap:8px}
   details.log summary::-webkit-details-marker{display:none}
   details.log summary::before{content:"▸"; transition:.15s; color:var(--faint)}
   details.log[open] summary::before{transform:rotate(90deg)}
   #log{max-height:180px; overflow:auto; padding:4px 16px 12px; font-family:var(--mono); font-size:11.5px; color:var(--dim)}
-  #log div{padding:1.5px 0; border-bottom:1px solid rgba(255,255,255,.03)}
-  #log .t{color:var(--faint)}
-  #log .e{color:var(--bad)}
-
-  .footer{text-align:center; color:var(--faint); font-size:11px; padding-top:4px}
-  .footer code{color:var(--dim)}
+  #log div{padding:1.5px 0; border-bottom:1px solid rgba(255,255,255,.03)} #log .t{color:var(--faint)} #log .e{color:var(--bad)}
+  .footer{text-align:center; color:var(--faint); font-size:11px; padding-top:4px} .footer code{color:var(--dim)}
 </style>
 </head>
 <body>
@@ -132,6 +111,32 @@
 </header>
 
 <main>
+  <!-- SITE SURVEY -->
+  <div class="card">
+    <div class="hd"><h2>📶 Site Survey — segnale in tempo reale</h2></div>
+    <div class="bd">
+      <div class="survey">
+        <div class="gauge">
+          <svg viewBox="0 0 120 120" width="150" height="150">
+            <circle cx="60" cy="60" r="52" fill="none" stroke="#1b2531" stroke-width="10"/>
+            <circle id="gArc" cx="60" cy="60" r="52" fill="none" stroke="var(--ok)" stroke-width="10" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327" transform="rotate(-90 60 60)"/>
+          </svg>
+          <div class="num"><span class="v" id="rssiV">—</span><span class="u">dBm</span></div>
+        </div>
+        <div>
+          <div class="qual" id="qual" style="color:var(--dim)">in attesa</div>
+          <div class="qbar"><i id="qfill"></i></div>
+          <div class="ssidname" id="surveySsid"></div>
+          <div class="toolbar" style="margin-top:12px">
+            <button class="primary" id="btnSurvey"><span class="ic">▶</span><span class="lbl">Avvia survey</span></button>
+          </div>
+        </div>
+      </div>
+      <canvas id="spark"></canvas>
+      <div class="scope"><span>🚶</span><span>Misura il segnale della rete a cui la board è connessa. Portala in giro (power bank) e trova i punti deboli di casa.</span></div>
+    </div>
+  </div>
+
   <!-- AP -->
   <div class="card">
     <div class="hd"><h2>Access Point</h2><span class="count" id="apCount">0</span></div>
@@ -139,8 +144,11 @@
       <div class="toolbar">
         <button class="primary" id="btnScan"><span class="ic">⟳</span><span class="lbl">Scansiona reti</span></button>
         <button class="ghost" id="btnStop"><span class="ic">■</span>Stop</button>
+        <button class="ghost" id="btnAuto"><span class="ic">🔄</span>Auto-scan</button>
+        <button class="ghost" id="btnExport"><span class="ic">💾</span>Esporta CSV</button>
       </div>
-      <div class="rows" id="apRows" style="margin-top:13px">
+      <div class="chan" id="chan" style="display:none"></div>
+      <div class="rows" id="apRows">
         <div class="empty"><span class="big">📡</span>Premi “Scansiona reti”.</div>
       </div>
     </div>
@@ -154,148 +162,171 @@
       <div class="toolbar" style="margin-top:12px">
         <button id="btnStations"><span class="ic">👥</span>Trova station</button>
         <button id="btnMonitor"><span class="ic">📈</span>Monitor</button>
+        <button class="ghost" id="btnExportSta"><span class="ic">💾</span>CSV</button>
       </div>
       <div class="rows" id="staRows" style="margin-top:13px">
         <div class="empty">Seleziona un AP e premi “Trova station”.</div>
       </div>
       <div id="monBox"></div>
-      <div class="scope"><span>🔒</span><span>Solo ricognizione passiva (scan / station / monitor). Le funzioni d’attacco di Marauder non sono disponibili da qui, per scelta.</span></div>
+      <div class="scope"><span>🔒</span><span>Solo ricognizione passiva. Le funzioni d’attacco di Marauder non sono disponibili da qui, per scelta.</span></div>
     </div>
   </div>
 
-  <!-- LOG -->
-  <details class="log">
-    <summary>Log attività</summary>
-    <div id="log"></div>
-  </details>
-
+  <details class="log"><summary>Log attività</summary><div id="log"></div></details>
   <div class="footer">pannello recon · <code>flipper.dxveblud.dev</code></div>
 </main>
 
 <script>
 (function(){
-  const TOKEN   = "%VIEWER_TOKEN%";
-  const WS_PATH = "%WS_PATH%";
-  const wsUrl = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + WS_PATH;
+  const TOKEN="%VIEWER_TOKEN%", WS_PATH="%WS_PATH%";
+  const wsUrl=(location.protocol==='https:'?'wss://':'ws://')+location.host+WS_PATH;
+  const $=s=>document.querySelector(s);
+  const dot=$('#dot'),statusEl=$('#status'),deviceEl=$('#device');
+  const btnScan=$('#btnScan'),btnStop=$('#btnStop'),btnAuto=$('#btnAuto'),btnExport=$('#btnExport'),btnExportSta=$('#btnExportSta');
+  const btnStations=$('#btnStations'),btnMonitor=$('#btnMonitor'),btnSurvey=$('#btnSurvey');
+  const apRows=$('#apRows'),staRows=$('#staRows'),chanEl=$('#chan');
+  const apCount=$('#apCount'),staCount=$('#staCount'),selBanner=$('#selBanner'),monBox=$('#monBox'),logEl=$('#log');
+  const scanLbl=btnScan.querySelector('.lbl'),scanIc=btnScan.querySelector('.ic');
+  const rssiV=$('#rssiV'),qual=$('#qual'),qfill=$('#qfill'),surveySsid=$('#surveySsid'),gArc=$('#gArc'),spark=$('#spark');
 
-  const $ = s => document.querySelector(s);
-  const dot=$('#dot'), statusEl=$('#status'), deviceEl=$('#device');
-  const btnScan=$('#btnScan'), btnStop=$('#btnStop'), btnStations=$('#btnStations'), btnMonitor=$('#btnMonitor');
-  const apRows=$('#apRows'), staRows=$('#staRows');
-  const apCount=$('#apCount'), staCount=$('#staCount'), selBanner=$('#selBanner'), monBox=$('#monBox'), logEl=$('#log');
-  const scanLbl = btnScan.querySelector('.lbl'), scanIc = btnScan.querySelector('.ic');
+  let ws=null,agentOnline=false,selectedBssid=null,selectedSsid=null,scanning=false;
+  let autoScan=false,autoTimer=null,surveyOn=false,lastAps=[],lastStations=[];
+  const hist=[]; // campioni rssi per lo sparkline
 
-  let ws=null, agentOnline=false, selectedBssid=null, selectedSsid=null, scanning=false;
+  function log(m,err){const d=document.createElement('div');d.innerHTML='<span class="t">'+new Date().toLocaleTimeString()+'</span> '+(err?'<span class="e">':'<span>')+esc(m)+'</span>';logEl.prepend(d);}
+  function esc(s){return(s==null?'':String(s)).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+  function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o));}
 
-  function log(m, err){ const d=document.createElement('div'); d.innerHTML='<span class="t">'+new Date().toLocaleTimeString()+'</span> '+(err?'<span class="e">':'<span>')+esc(m)+'</span>'; logEl.prepend(d); }
-  function esc(s){ return (s==null?'':String(s)).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
-
-  function setAgent(on){
-    agentOnline=on;
-    dot.classList.toggle('on',on);
-    statusEl.textContent = on ? 'agente online' : 'agente offline';
-    refreshButtons();
-  }
+  function setAgent(on){agentOnline=on;dot.classList.toggle('on',on);statusEl.textContent=on?'agente online':'agente offline';if(!on){stopSurvey();setAuto(false);}refreshButtons();}
   function refreshButtons(){
-    const can = agentOnline && ws && ws.readyState===1 && !scanning;
-    btnScan.disabled=!(agentOnline && ws && ws.readyState===1);
-    btnStop.disabled=!(agentOnline && ws && ws.readyState===1);
-    btnStations.disabled=!(can && selectedBssid);
-    btnMonitor.disabled=!(can && selectedBssid);
+    const base=agentOnline&&ws&&ws.readyState===1;
+    const can=base&&!scanning;
+    btnScan.disabled=!base;btnStop.disabled=!base;btnAuto.disabled=!base;btnSurvey.disabled=!base;
+    btnStations.disabled=!(can&&selectedBssid);btnMonitor.disabled=!(can&&selectedBssid);
+    btnExport.disabled=!lastAps.length;btnExportSta.disabled=!lastStations.length;
   }
-  function setScanning(on){
-    scanning=on;
-    scanLbl.textContent = on ? 'Scansione…' : 'Scansiona reti';
-    scanIc.innerHTML = on ? '<span class="spin"></span>' : '⟳';
+  function setScanning(on){scanning=on;scanLbl.textContent=on?'Scansione…':'Scansiona reti';scanIc.innerHTML=on?'<span class="spin"></span>':'⟳';refreshButtons();}
+
+  // ---- signal bars ----
+  function sigBars(rssi){const pct=Math.max(0,Math.min(100,Math.round(2*(rssi+95))));const lvl=Math.max(1,Math.round(pct/20));const cls=lvl>=4?'':(lvl>=2?'mid':'low');let h='';for(let i=1;i<=5;i++){h+='<i class="'+(i<=lvl?('on '+cls):'')+'" style="height:'+(5+i*2.2)+'px"></i>';}return '<span class="sig">'+h+'<span class="rssi">'+rssi+'</span></span>';}
+
+  function vendorHtml(v){if(!v)return '';if(v==='casuale')return '<div class="vendor rnd">🎲 MAC casuale (privacy)</div>';return '<div class="vendor">🏷️ '+esc(v)+'</div>';}
+
+  // ---- channel analysis ----
+  function renderChannels(aps){
+    const cnt={};for(const a of aps){cnt[a.ch]=(cnt[a.ch]||0)+1;}
+    const chans=[1,2,3,4,5,6,7,8,9,10,11,12,13];
+    const max=Math.max(1,...Object.values(cnt));
+    const busy=Object.keys(cnt).reduce((b,c)=>cnt[c]>(cnt[b]||0)?c:b,'1');
+    chanEl.innerHTML=chans.map(c=>{const n=cnt[c]||0;const h=Math.round(n/max*100);return '<div class="c'+(n&&String(c)===busy?' busy':'')+'">'+(n?'<span class="n">'+n+'</span>':'')+'<div class="bar" style="height:'+(n?Math.max(8,h):2)+'%"></div><span class="lab">'+c+'</span></div>';}).join('');
+    chanEl.style.display=aps.length?'flex':'none';
+  }
+
+  // ---- AP list ----
+  function renderAPs(aps){
+    lastAps=aps.slice();apCount.textContent=aps.length;
+    renderChannels(aps);
+    if(!aps.length){apRows.innerHTML='<div class="empty">Nessuna rete trovata.</div>';refreshButtons();return;}
+    aps.sort((a,b)=>b.rssi-a.rssi);apRows.innerHTML='';
+    for(const ap of aps){
+      const el=document.createElement('div');el.className='row'+(ap.bssid===selectedBssid?' sel':'');el.dataset.bssid=ap.bssid;
+      const open=(ap.enc||'').toLowerCase()==='open';
+      const nm=ap.ssid?'<span class="name">'+esc(ap.ssid)+'</span>':'<span class="name hidden">rete nascosta</span>';
+      el.innerHTML='<div style="min-width:0">'+nm+'<div class="bssid">'+esc(ap.bssid)+'</div>'+vendorHtml(ap.vendor)+'</div>'+
+        '<div class="meta"><span class="badge ch">ch '+ap.ch+'</span><span class="badge '+(open?'open':'')+'">'+esc(ap.enc)+'</span>'+sigBars(ap.rssi)+'</div>';
+      el.onclick=()=>selectAP(ap);apRows.appendChild(el);
+    }
     refreshButtons();
   }
-  function send(obj){ if(ws&&ws.readyState===1){ ws.send(JSON.stringify(obj)); } }
-
-  // segmented signal meter from RSSI (-30 strong .. -90 weak)
-  function sigBars(rssi){
-    const pct = Math.max(0, Math.min(100, Math.round(2*(rssi+95))));
-    const lvl = Math.max(1, Math.round(pct/20)); // 1..5
-    let cls = lvl>=4?'':(lvl>=2?'mid':'low');
-    let h=''; for(let i=1;i<=5;i++){ const on=i<=lvl; h+='<i class="'+(on?('on '+cls):'')+'" style="height:'+(5+i*2.2)+'px"></i>'; }
-    return '<span class="sig">'+h+'<span class="rssi">'+rssi+'</span></span>';
-  }
-
-  function renderAPs(aps){
-    apCount.textContent = aps.length;
-    if(!aps.length){ apRows.innerHTML='<div class="empty">Nessuna rete trovata.</div>'; return; }
-    aps.sort((a,b)=>b.rssi-a.rssi);
-    apRows.innerHTML='';
-    for(const ap of aps){
-      const el=document.createElement('div');
-      el.className='row'+(ap.bssid===selectedBssid?' sel':'');
-      el.dataset.bssid=ap.bssid;
-      const open = (ap.enc||'').toLowerCase()==='open';
-      const nm = ap.ssid ? '<span class="name">'+esc(ap.ssid)+'</span>' : '<span class="name hidden">rete nascosta</span>';
-      el.innerHTML =
-        '<div class="main" style="flex-direction:column;align-items:flex-start;gap:1px">'+nm+'<span class="bssid">'+esc(ap.bssid)+'</span></div>'+
-        '<div class="meta"><span class="badge ch">ch '+ap.ch+'</span><span class="badge '+(open?'open':'')+'">'+esc(ap.enc)+'</span>'+sigBars(ap.rssi)+'</div>';
-      el.onclick=()=>selectAP(ap);
-      apRows.appendChild(el);
-    }
-  }
-  function selectAP(ap){ selectedSsid=ap.ssid; send({cmd:'select', bssid:ap.bssid, channel:parseInt(ap.ch,10)}); log('select → '+(ap.ssid||ap.bssid)); }
-
-  function renderSelected(bssid, ch, ssid){
-    selectedBssid=bssid; if(ssid) selectedSsid=ssid;
+  function selectAP(ap){selectedSsid=ap.ssid;send({cmd:'select',bssid:ap.bssid,channel:parseInt(ap.ch,10)});log('select → '+(ap.ssid||ap.bssid));}
+  function renderSelected(bssid,ch,ssid){
+    selectedBssid=bssid;if(ssid)selectedSsid=ssid;
     selBanner.className='target';
     selBanner.innerHTML='🎯 <span class="ssid">'+esc(selectedSsid||'AP')+'</span><span class="pill">'+esc(bssid)+'</span><span class="pill">canale '+ch+'</span>';
-    [...apRows.children].forEach(el=>el.classList&&el.classList.toggle('sel', el.dataset.bssid===bssid));
-    staRows.innerHTML='<div class="empty">Premi “Trova station”.</div>'; staCount.textContent='0'; monBox.textContent='';
-    refreshButtons();
+    [...apRows.children].forEach(el=>el.classList&&el.classList.toggle('sel',el.dataset.bssid===bssid));
+    staRows.innerHTML='<div class="empty">Premi “Trova station”.</div>';staCount.textContent='0';monBox.textContent='';lastStations=[];refreshButtons();
   }
   function renderStations(list){
-    staCount.textContent=list.length;
-    if(!list.length){ staRows.innerHTML='<div class="empty">Nessuna station vista in questa finestra.</div>'; return; }
-    list.sort((a,b)=>b.pkts-a.pkts);
-    staRows.innerHTML='';
+    lastStations=list.slice();staCount.textContent=list.length;
+    if(!list.length){staRows.innerHTML='<div class="empty">Nessuna station vista in questa finestra.</div>';refreshButtons();return;}
+    list.sort((a,b)=>b.pkts-a.pkts);staRows.innerHTML='';
     for(const s of list){
-      const el=document.createElement('div'); el.className='row'; el.style.cursor='default';
-      el.innerHTML=
-        '<div class="main"><span class="name" style="font-family:var(--mono);font-size:13px">'+esc(s.mac)+'</span></div>'+
+      const el=document.createElement('div');el.className='row';el.style.cursor='default';
+      el.innerHTML='<div style="min-width:0"><span class="name" style="font-family:var(--mono);font-size:13px">'+esc(s.mac)+'</span>'+vendorHtml(s.vendor)+'</div>'+
         '<div class="meta"><span class="badge">'+s.pkts+' pkt</span>'+sigBars(s.rssi)+'</div>';
       staRows.appendChild(el);
     }
+    refreshButtons();
   }
+
+  // ---- survey ----
+  function quality(r){
+    if(r>=-55)return{l:'Eccellente',c:'#3ddc84'};
+    if(r>=-62)return{l:'Ottimo',c:'#3ddc84'};
+    if(r>=-68)return{l:'Buono',c:'#9fe24a'};
+    if(r>=-74)return{l:'Discreto',c:'#f5c451'};
+    if(r>=-82)return{l:'Debole',c:'#ff8a2b'};
+    return{l:'Pessimo',c:'#ff5a5a'};
+  }
+  function onRssi(r){
+    const q=quality(r),pct=Math.max(0,Math.min(100,Math.round(2*(r+95))));
+    rssiV.textContent=r;rssiV.style.color=q.c;qual.textContent=q.l;qual.style.color=q.c;
+    qfill.style.width=pct+'%';qfill.style.background=q.c;
+    gArc.style.stroke=q.c;gArc.style.strokeDashoffset=(327*(1-pct/100)).toFixed(0);
+    hist.push(r);if(hist.length>80)hist.shift();drawSpark();
+  }
+  function drawSpark(){
+    const c=spark,dpr=window.devicePixelRatio||1;const w=c.clientWidth,h=c.clientHeight;
+    if(c.width!==w*dpr){c.width=w*dpr;c.height=h*dpr;}
+    const x=c.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,w,h);
+    if(hist.length<2)return;
+    const map=r=>h-((Math.max(-95,Math.min(-30,r))+95)/65)*h;
+    x.beginPath();x.lineWidth=2;x.strokeStyle='#35d0e0';
+    hist.forEach((r,i)=>{const px=i/(hist.length-1)*w,py=map(r);i?x.lineTo(px,py):x.moveTo(px,py);});
+    x.stroke();
+    x.lineTo(w,h);x.lineTo(0,h);x.closePath();x.fillStyle='rgba(53,208,224,.08)';x.fill();
+  }
+  function startSurvey(){surveyOn=true;btnSurvey.classList.add('on');btnSurvey.querySelector('.lbl').textContent='Ferma survey';btnSurvey.querySelector('.ic').textContent='■';hist.length=0;send({cmd:'survey'});log('survey avviata');}
+  function stopSurvey(){if(!surveyOn)return;surveyOn=false;btnSurvey.classList.remove('on');btnSurvey.querySelector('.lbl').textContent='Avvia survey';btnSurvey.querySelector('.ic').textContent='▶';send({cmd:'stop'});}
+
+  // ---- auto-scan ----
+  function setAuto(on){autoScan=on;btnAuto.classList.toggle('on',on);if(on){send({cmd:'scan'});autoTimer=setInterval(()=>{if(!scanning)send({cmd:'scan'});},5000);log('auto-scan ON');}else{clearInterval(autoTimer);autoTimer=null;}}
+
+  // ---- export ----
+  function csv(rows){return rows.map(r=>r.map(x=>'"'+String(x==null?'':x).replace(/"/g,'""')+'"').join(',')).join('\n');}
+  function dl(name,content){const b=new Blob([content],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);}
+  function exportAPs(){if(!lastAps.length)return;const r=[['ssid','bssid','canale','rssi','cifratura','produttore']];lastAps.forEach(a=>r.push([a.ssid,a.bssid,a.ch,a.rssi,a.enc,a.vendor]));dl('reti.csv',csv(r));log('esportate '+lastAps.length+' reti');}
+  function exportSta(){if(!lastStations.length)return;const r=[['mac','rssi','pacchetti','produttore']];lastStations.forEach(s=>r.push([s.mac,s.rssi,s.pkts,s.vendor]));dl('station.csv',csv(r));log('esportate '+lastStations.length+' station');}
 
   function onMsg(ev){
-    let m; try{ m=JSON.parse(ev.data); }catch{ return; }
+    let m;try{m=JSON.parse(ev.data);}catch{return;}
     switch(m.type){
-      case 'agent':
-        setAgent(m.state==='online');
-        if(m.device){ deviceEl.textContent=m.device; }
-        log('agente '+m.state+(m.device?(' · '+m.device):'')); break;
-      case 'status':
-        if(m.state==='scanning') setScanning(true);
-        else if(scanning && m.state!=='scanning') setScanning(false);
-        if(m.state) log('stato: '+m.state);
-        break;
-      case 'aps': setScanning(false); renderAPs(m.aps||[]); log('ricevuti '+(m.aps?m.aps.length:0)+' AP'); break;
-      case 'selected': renderSelected(m.bssid, m.channel, m.ssid); log('selezionato '+m.bssid); break;
-      case 'stations': renderStations(m.stations||[]); log('ricevute '+(m.stations?m.stations.length:0)+' station'); break;
-      case 'monitor': monBox.innerHTML='📈 <b>'+m.packets+'</b> pacchetti in '+(m.window_ms/1000)+'s sul canale '+m.ch+' — '+m.stations_seen+' host visti.'; log('monitor: '+m.packets+' pkt'); break;
-      case 'error': log('errore: '+m.msg, true); break;
+      case 'agent':setAgent(m.state==='online');if(m.device)deviceEl.textContent=m.device;log('agente '+m.state+(m.device?(' · '+m.device):''));break;
+      case 'status':if(m.state==='scanning')setScanning(true);else if(scanning&&m.state!=='scanning')setScanning(false);if(m.state)log('stato: '+m.state);break;
+      case 'aps':setScanning(false);renderAPs(m.aps||[]);log('ricevuti '+(m.aps?m.aps.length:0)+' AP');break;
+      case 'selected':renderSelected(m.bssid,m.channel,m.ssid);log('selezionato '+m.bssid);break;
+      case 'stations':renderStations(m.stations||[]);log('ricevute '+(m.stations?m.stations.length:0)+' station');break;
+      case 'monitor':monBox.innerHTML='📈 <b>'+m.packets+'</b> pacchetti in '+(m.window_ms/1000)+'s sul canale '+m.ch+' — '+m.stations_seen+' host visti.';log('monitor: '+m.packets+' pkt');break;
+      case 'rssi':onRssi(m.rssi);if(m.ssid)surveySsid.textContent='rete: '+m.ssid;break;
+      case 'error':log('errore: '+m.msg,true);break;
     }
   }
-
   function connect(){
-    statusEl.textContent='connessione…';
-    ws=new WebSocket(wsUrl);
-    ws.onopen=()=>{ ws.send(JSON.stringify({role:'ui', token:TOKEN})); log('connesso al relay'); refreshButtons(); };
+    statusEl.textContent='connessione…';ws=new WebSocket(wsUrl);
+    ws.onopen=()=>{ws.send(JSON.stringify({role:'ui',token:TOKEN}));log('connesso al relay');refreshButtons();};
     ws.onmessage=onMsg;
-    ws.onclose=()=>{ setAgent(false); setScanning(false); statusEl.textContent='riconnessione…'; refreshButtons(); setTimeout(connect,3000); };
-    ws.onerror=()=>{ try{ws.close();}catch{} };
+    ws.onclose=()=>{setAgent(false);setScanning(false);statusEl.textContent='riconnessione…';refreshButtons();setTimeout(connect,3000);};
+    ws.onerror=()=>{try{ws.close();}catch{}};
   }
 
-  btnScan.onclick=()=>{ setScanning(true); send({cmd:'scan'}); log('scan…'); };
-  btnStop.onclick=()=>{ send({cmd:'stop'}); setScanning(false); };
-  btnStations.onclick=()=>{ staRows.innerHTML='<div class="empty"><span class="spin"></span> sniffing… la board stacca l’uplink per qualche secondo</div>'; send({cmd:'stations'}); log('cerco station…'); };
-  btnMonitor.onclick=()=>{ monBox.innerHTML='<span class="spin"></span> monitoraggio in corso…'; send({cmd:'monitor'}); log('monitor…'); };
-
+  btnScan.onclick=()=>{setScanning(true);send({cmd:'scan'});log('scan…');};
+  btnStop.onclick=()=>{send({cmd:'stop'});setScanning(false);stopSurvey();setAuto(false);};
+  btnAuto.onclick=()=>setAuto(!autoScan);
+  btnExport.onclick=exportAPs;btnExportSta.onclick=exportSta;
+  btnStations.onclick=()=>{staRows.innerHTML='<div class="empty"><span class="spin"></span> sniffing… la board stacca l’uplink per qualche secondo</div>';send({cmd:'stations'});log('cerco station…');};
+  btnMonitor.onclick=()=>{monBox.innerHTML='<span class="spin"></span> monitoraggio…';send({cmd:'monitor'});log('monitor…');};
+  btnSurvey.onclick=()=>{surveyOn?stopSurvey():startSurvey();};
+  window.addEventListener('resize',drawSpark);
   connect();
 })();
 </script>

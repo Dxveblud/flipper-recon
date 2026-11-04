@@ -2,7 +2,10 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0d12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Flipper Recon</title>
 <style>
   :root{
@@ -20,7 +23,7 @@
       radial-gradient(900px 500px at -10% 10%, rgba(53,208,224,.06), transparent 55%),var(--bg);
     color:var(--txt); font-family:var(--sans); font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased; min-height:100vh;
   }
-  header{position:sticky; top:0; z-index:20; backdrop-filter:blur(10px); background:rgba(10,13,18,.78); border-bottom:1px solid var(--line); display:flex; align-items:center; gap:14px; padding:12px 18px}
+  header{position:sticky; top:0; z-index:20; backdrop-filter:blur(10px); background:rgba(10,13,18,.78); border-bottom:1px solid var(--line); display:flex; align-items:center; gap:14px; padding:max(12px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) 12px max(18px, env(safe-area-inset-left))}
   .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.5px; font-size:15px}
   .brand .mark{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#e2641a); color:#1b1206; font-weight:900; box-shadow:0 0 14px rgba(255,138,43,.4)}
   .brand b{color:var(--accent)}
@@ -47,22 +50,41 @@
   .spin{display:inline-block; width:13px;height:13px;border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:rot .7s linear infinite; vertical-align:-2px}
   @keyframes rot{to{transform:rotate(360deg)}}
   .rows{display:flex; flex-direction:column; gap:7px}
-  .row{display:grid; grid-template-columns:1fr auto; gap:4px 12px; align-items:center; padding:11px 13px; border:1px solid var(--line); border-radius:11px; background:var(--panel2); cursor:pointer; transition:.12s}
+  .row{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 12px; align-items:center; padding:11px 13px; border:1px solid var(--line); border-radius:11px; background:var(--panel2); cursor:pointer; transition:.12s; position:relative; overflow:hidden}
   .row:hover{border-color:#34435a; background:#1b2531}
   .row.sel{background:var(--sel); border-color:var(--sel-line)}
-  .row .name{font-weight:650; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .row .name{display:block; font-weight:650; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0}
   .row .name.hidden{color:var(--faint); font-style:italic; font-weight:500}
-  .row .bssid{font-family:var(--mono); font-size:11.5px; color:var(--faint); margin-top:1px}
-  .row .vendor{font-size:11px; color:var(--cyan); margin-top:2px}
+  .row .bssid{font-family:var(--mono); font-size:11.5px; color:var(--faint); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .row .vendor{font-size:11px; color:var(--cyan); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
   .row .vendor.rnd{color:var(--faint)}
   .meta{display:flex; align-items:center; gap:8px; justify-self:end}
   .badge{font-family:var(--mono); font-size:10.5px; color:var(--dim); border:1px solid var(--line); border-radius:6px; padding:2px 6px; white-space:nowrap}
   .badge.ch{color:var(--cyan); border-color:rgba(53,208,224,.3); background:rgba(53,208,224,.07)}
-  .badge.open{color:var(--warn); border-color:rgba(245,196,81,.3); background:rgba(245,196,81,.07)}
-  .sig{display:flex; align-items:flex-end; gap:2px; height:16px}
+  .badge.open{color:var(--warn); border-color:rgba(245,196,81,.35); background:rgba(245,196,81,.09)}
+  .badge.weak{color:var(--bad); border-color:rgba(255,90,90,.35); background:rgba(255,90,90,.08)}
+  .badge.strong{color:var(--ok); border-color:rgba(61,220,132,.3); background:rgba(61,220,132,.07)}
+
+  /* riga AP: info | badge | segnale — su telefono i badge vanno sotto */
+  .row.ap{grid-template-columns:minmax(0,1fr) auto auto; grid-template-areas:"info tags sig"; padding-left:16px}
+  .row.ap::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--s,var(--line))}
+  .row.ap.s-hi{--s:var(--ok)} .row.ap.s-mid{--s:var(--warn)} .row.ap.s-low{--s:var(--bad)}
+  .row.ap .info{grid-area:info; min-width:0}
+  .row.ap .tags{grid-area:tags; display:flex; gap:6px; flex-wrap:wrap}
+  .row.ap .sig{grid-area:sig; justify-self:end}
+  .row.ap .radar-on{color:var(--cyan); margin-left:4px}
+  @media(max-width:560px){ .row.ap{grid-template-columns:minmax(0,1fr) auto; grid-template-areas:"info sig" "tags tags"; row-gap:8px} }
+
+  .search{flex:1 1 160px; min-width:0; font:inherit; font-size:13.5px; color:var(--txt); background:var(--bg2); border:1px solid var(--line); border-radius:10px; padding:10px 12px; outline:none}
+  .search:focus{border-color:var(--accent)} .search::placeholder{color:var(--faint)}
+  .summary{display:flex; flex-wrap:wrap; gap:6px; margin:12px 0 4px}
+  .summary:empty{display:none}
+  .summary .chip{font-size:11.5px; color:var(--dim); border:1px solid var(--line); border-radius:999px; padding:3px 10px; background:var(--bg2)}
+  .summary .chip b{color:var(--txt)} .summary .chip.warn, .summary .chip.warn b{color:var(--warn)} .summary .chip.warn{border-color:rgba(245,196,81,.3)}
+  .sig{display:flex; align-items:flex-end; gap:2px; height:16px; flex:none}
   .sig i{width:3.5px; border-radius:1px; background:var(--line)}
   .sig i.on{background:var(--ok)} .sig i.on.mid{background:var(--warn)} .sig i.on.low{background:var(--bad)}
-  .sig .rssi{font-family:var(--mono); font-size:11px; color:var(--dim); margin-left:6px; align-self:center}
+  .sig .rssi{font-family:var(--mono); font-size:11px; color:var(--dim); margin-left:6px; align-self:center; min-width:24px; text-align:right}
   .empty{color:var(--faint); text-align:center; padding:22px 10px; font-size:13px}
   .empty .big{font-size:26px; opacity:.5; display:block; margin-bottom:6px}
   .target{display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:12px 14px; border:1px dashed var(--line); border-radius:11px; background:rgba(53,208,224,.04)}
@@ -73,25 +95,42 @@
   .scope{margin-top:12px; padding-top:10px; border-top:1px dashed var(--line); font-size:11.5px; color:var(--faint); display:flex; gap:7px; align-items:flex-start}
 
   /* channel analysis */
-  .chan{display:flex; align-items:flex-end; gap:5px; height:56px; margin:4px 2px 12px; padding-bottom:16px; position:relative}
+  .chan{display:flex; align-items:flex-end; gap:5px; height:56px; margin:12px 2px 14px; padding-bottom:16px; position:relative}
   .chan .c{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; position:relative}
   .chan .c .bar{width:100%; max-width:26px; border-radius:4px 4px 0 0; background:linear-gradient(180deg,var(--cyan),#1b7f8a); min-height:2px; transition:height .2s}
   .chan .c.busy .bar{background:linear-gradient(180deg,var(--accent),#c85414)}
   .chan .c .lab{position:absolute; bottom:-16px; font-size:10px; color:var(--faint); font-family:var(--mono)}
   .chan .c .n{font-size:10px; color:var(--dim); margin-bottom:2px; font-family:var(--mono)}
 
-  /* survey */
-  .survey{display:grid; grid-template-columns:auto 1fr; gap:16px; align-items:center}
-  @media(max-width:520px){ .survey{grid-template-columns:1fr; text-align:center} }
-  .gauge{position:relative; width:150px; height:150px; justify-self:center}
-  .gauge .num{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center}
-  .gauge .num .v{font-size:34px; font-weight:800; font-family:var(--mono); line-height:1}
-  .gauge .num .u{font-size:11px; color:var(--dim)}
-  .qual{font-size:20px; font-weight:800; margin-bottom:4px}
-  .qbar{height:10px; border-radius:6px; background:var(--panel2); overflow:hidden; border:1px solid var(--line)}
+  /* radar */
+  .radar{display:grid; grid-template-columns:auto minmax(0,1fr); gap:18px; align-items:center}
+  @media(max-width:520px){ .radar{grid-template-columns:1fr; text-align:center} .radar .toolbar{justify-content:center} }
+  .scope-c{position:relative; width:170px; height:170px; justify-self:center; border-radius:50%;
+    background:radial-gradient(circle, rgba(53,208,224,.10) 0 1px, transparent 1px) 0 0/100% 100%,
+      repeating-radial-gradient(circle, transparent 0 27px, rgba(53,208,224,.14) 27px 28px), #0b1219;
+    border:1px solid rgba(53,208,224,.25); overflow:hidden; box-shadow:inset 0 0 30px rgba(0,0,0,.6)}
+  .scope-c::before, .scope-c::after{content:""; position:absolute; background:rgba(53,208,224,.12)}
+  .scope-c::before{left:50%; top:0; bottom:0; width:1px} .scope-c::after{top:50%; left:0; right:0; height:1px}
+  .sweep{position:absolute; inset:0; border-radius:50%; background:conic-gradient(from 0deg, rgba(53,208,224,.0) 0deg, rgba(53,208,224,.0) 300deg, rgba(53,208,224,.35) 360deg); opacity:0}
+  .scope-c.on .sweep{opacity:1; animation:rot 2.2s linear infinite}
+  .blip{position:absolute; left:50%; top:50%; width:var(--d,40px); height:var(--d,40px); margin:calc(var(--d,40px)/-2) 0 0 calc(var(--d,40px)/-2); border-radius:50%;
+    background:radial-gradient(circle, var(--c,#3ddc84) 0 18%, transparent 70%); opacity:0; transition:width .35s, height .35s, margin .35s, opacity .3s}
+  .scope-c.on .blip{opacity:.95}
+  .scope-c.lost .blip{opacity:.15}
+  .scope-c .num{position:absolute; left:0; right:0; bottom:16px; text-align:center; font-family:var(--mono); text-shadow:0 1px 6px #000}
+  .scope-c .num .v{font-size:26px; font-weight:800; line-height:1}
+  .scope-c .num .u{font-size:10px; color:var(--dim); margin-left:3px}
+  .rtarget{font-size:15px; font-weight:800; color:var(--accent2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .rtarget small{display:block; font-family:var(--mono); font-weight:500; font-size:11px; color:var(--faint)}
+  .qual{font-size:20px; font-weight:800; margin:6px 0 4px}
+  .trend{font-size:13px; font-weight:700; color:var(--dim); min-height:20px}
+  .trend.hot{color:var(--accent)} .trend.cold{color:var(--cyan)}
+  .qbar{height:10px; border-radius:6px; background:var(--panel2); overflow:hidden; border:1px solid var(--line); margin-top:6px}
   .qbar i{display:block; height:100%; width:0; transition:width .25s, background .25s}
-  .survey .ssidname{color:var(--dim); font-size:12.5px; margin-top:8px; font-family:var(--mono)}
-  #spark{width:100%; height:56px; margin-top:12px; display:block}
+  .rstats{display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; font-family:var(--mono); font-size:11.5px; color:var(--faint)}
+  @media(max-width:520px){ .rstats{justify-content:center} }
+  .rstats b{color:var(--dim); font-weight:600}
+  #spark{width:100%; height:64px; margin-top:14px; display:block}
 
   details.log{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); overflow:hidden}
   details.log summary{list-style:none; cursor:pointer; padding:11px 16px; font-size:11px; letter-spacing:1.4px; text-transform:uppercase; color:var(--dim); font-weight:700; display:flex; align-items:center; gap:8px}
@@ -111,32 +150,6 @@
 </header>
 
 <main>
-  <!-- SITE SURVEY -->
-  <div class="card">
-    <div class="hd"><h2>📶 Site Survey — segnale in tempo reale</h2></div>
-    <div class="bd">
-      <div class="survey">
-        <div class="gauge">
-          <svg viewBox="0 0 120 120" width="150" height="150">
-            <circle cx="60" cy="60" r="52" fill="none" stroke="#1b2531" stroke-width="10"/>
-            <circle id="gArc" cx="60" cy="60" r="52" fill="none" stroke="var(--ok)" stroke-width="10" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327" transform="rotate(-90 60 60)"/>
-          </svg>
-          <div class="num"><span class="v" id="rssiV">—</span><span class="u">dBm</span></div>
-        </div>
-        <div>
-          <div class="qual" id="qual" style="color:var(--dim)">in attesa</div>
-          <div class="qbar"><i id="qfill"></i></div>
-          <div class="ssidname" id="surveySsid"></div>
-          <div class="toolbar" style="margin-top:12px">
-            <button class="primary" id="btnSurvey"><span class="ic">▶</span><span class="lbl">Avvia survey</span></button>
-          </div>
-        </div>
-      </div>
-      <canvas id="spark"></canvas>
-      <div class="scope"><span>🚶</span><span>Misura il segnale della rete a cui la board è connessa. Portala in giro (power bank) e trova i punti deboli di casa.</span></div>
-    </div>
-  </div>
-
   <!-- AP -->
   <div class="card">
     <div class="hd"><h2>Access Point</h2><span class="count" id="apCount">0</span></div>
@@ -146,11 +159,37 @@
         <button class="ghost" id="btnStop"><span class="ic">■</span>Stop</button>
         <button class="ghost" id="btnAuto"><span class="ic">🔄</span>Auto-scan</button>
         <button class="ghost" id="btnExport"><span class="ic">💾</span>Esporta CSV</button>
+        <input class="search" id="apSearch" type="search" placeholder="Filtra per nome, MAC o produttore…" autocomplete="off" autocapitalize="off" spellcheck="false">
       </div>
+      <div class="summary" id="apSummary"></div>
       <div class="chan" id="chan" style="display:none"></div>
       <div class="rows" id="apRows">
         <div class="empty"><span class="big">📡</span>Premi “Scansiona reti”.</div>
       </div>
+    </div>
+  </div>
+
+  <!-- RADAR -->
+  <div class="card" id="radarCard">
+    <div class="hd"><h2>📡 Radar — segnale in tempo reale</h2></div>
+    <div class="bd">
+      <div class="radar">
+        <div class="scope-c" id="scope"><div class="sweep"></div><div class="blip" id="blip"></div>
+          <div class="num"><span class="v" id="rssiV">—</span><span class="u">dBm</span></div></div>
+        <div style="min-width:0">
+          <div class="rtarget" id="rTarget">Rete connessa alla board<small>tocca una rete nella lista per puntare il radar su quella</small></div>
+          <div class="qual" id="qual" style="color:var(--dim)">in attesa</div>
+          <div class="trend" id="trend"></div>
+          <div class="qbar"><i id="qfill"></i></div>
+          <div class="rstats" id="rstats"></div>
+          <div class="toolbar" style="margin-top:12px">
+            <button class="primary" id="btnSurvey"><span class="ic">▶</span><span class="lbl">Avvia radar</span></button>
+            <button class="ghost" id="btnSound"><span class="ic">🔇</span><span class="lbl">Suono</span></button>
+          </div>
+        </div>
+      </div>
+      <canvas id="spark"></canvas>
+      <div class="scope"><span>🚶</span><span>Muoviti con la board (power bank): il segnale sale quando ti avvicini alla rete. Utile per trovare il tuo router, un ripetitore o una telecamera, o i punti deboli di casa.</span></div>
     </div>
   </div>
 
@@ -187,11 +226,16 @@
   const apRows=$('#apRows'),staRows=$('#staRows'),chanEl=$('#chan');
   const apCount=$('#apCount'),staCount=$('#staCount'),selBanner=$('#selBanner'),monBox=$('#monBox'),logEl=$('#log');
   const scanLbl=btnScan.querySelector('.lbl'),scanIc=btnScan.querySelector('.ic');
-  const rssiV=$('#rssiV'),qual=$('#qual'),qfill=$('#qfill'),surveySsid=$('#surveySsid'),gArc=$('#gArc'),spark=$('#spark');
+  const rssiV=$('#rssiV'),qual=$('#qual'),qfill=$('#qfill'),spark=$('#spark');
+  const scopeEl=$('#scope'),blip=$('#blip'),rTarget=$('#rTarget'),trendEl=$('#trend'),rstats=$('#rstats'),btnSound=$('#btnSound');
+  const apSearch=$('#apSearch'),apSummary=$('#apSummary');
 
   let ws=null,agentOnline=false,selectedBssid=null,selectedSsid=null,scanning=false;
   let autoScan=false,autoTimer=null,surveyOn=false,lastAps=[],lastStations=[];
   const hist=[]; // campioni rssi per lo sparkline
+  let radarTarget=null; // {bssid,ch,ssid} oppure null = rete connessa
+  let ema=null,emaHist=[],rMin=null,rMax=null,rN=0,rSum=0,lostCount=0;
+  let soundOn=false,actx=null,beepTimer=null,lastRssi=null;
 
   function log(m,err){const d=document.createElement('div');d.innerHTML='<span class="t">'+new Date().toLocaleTimeString()+'</span> '+(err?'<span class="e">':'<span>')+esc(m)+'</span>';logEl.prepend(d);}
   function esc(s){return(s==null?'':String(s)).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
@@ -208,6 +252,9 @@
   function setScanning(on){scanning=on;scanLbl.textContent=on?'Scansione…':'Scansiona reti';scanIc.innerHTML=on?'<span class="spin"></span>':'⟳';refreshButtons();}
 
   // ---- signal bars ----
+  function sigLevel(r){const pct=Math.max(0,Math.min(100,Math.round(2*(r+95))));return Math.max(1,Math.round(pct/20));}
+  function sigClass(l){return l>=4?'hi':(l>=2?'mid':'low');}
+  function encClass(e){e=(e||'').toLowerCase();if(e==='open')return 'open';if(e.includes('wep'))return 'weak';if(e.includes('wpa3'))return 'strong';return '';}
   function sigBars(rssi){const pct=Math.max(0,Math.min(100,Math.round(2*(rssi+95))));const lvl=Math.max(1,Math.round(pct/20));const cls=lvl>=4?'':(lvl>=2?'mid':'low');let h='';for(let i=1;i<=5;i++){h+='<i class="'+(i<=lvl?('on '+cls):'')+'" style="height:'+(5+i*2.2)+'px"></i>';}return '<span class="sig">'+h+'<span class="rssi">'+rssi+'</span></span>';}
 
   function vendorHtml(v){if(!v)return '';if(v==='casuale')return '<div class="vendor rnd">🎲 MAC casuale (privacy)</div>';return '<div class="vendor">🏷️ '+esc(v)+'</div>';}
@@ -223,26 +270,38 @@
   }
 
   // ---- AP list ----
+  function renderSummary(aps){
+    if(!aps.length){apSummary.innerHTML='';return;}
+    const pl=(n,a,b)=>'<b>'+n+'</b> '+(n===1?a:b);
+    const open=aps.filter(a=>(a.enc||'').toLowerCase()==='open').length, hidden=aps.filter(a=>!a.ssid).length, ch=new Set(aps.map(a=>a.ch)).size;
+    apSummary.innerHTML='<span class="chip">'+pl(aps.length,'rete','reti')+'</span><span class="chip">'+pl(ch,'canale','canali')+'</span>'+
+      (open?'<span class="chip warn">'+pl(open,'aperta','aperte')+'</span>':'')+(hidden?'<span class="chip">'+pl(hidden,'nascosta','nascoste')+'</span>':'');
+  }
   function renderAPs(aps){
-    lastAps=aps.slice();apCount.textContent=aps.length;
-    renderChannels(aps);
-    if(!aps.length){apRows.innerHTML='<div class="empty">Nessuna rete trovata.</div>';refreshButtons();return;}
-    aps.sort((a,b)=>b.rssi-a.rssi);apRows.innerHTML='';
-    for(const ap of aps){
-      const el=document.createElement('div');el.className='row'+(ap.bssid===selectedBssid?' sel':'');el.dataset.bssid=ap.bssid;
-      const open=(ap.enc||'').toLowerCase()==='open';
-      const nm=ap.ssid?'<span class="name">'+esc(ap.ssid)+'</span>':'<span class="name hidden">rete nascosta</span>';
-      el.innerHTML='<div style="min-width:0">'+nm+'<div class="bssid">'+esc(ap.bssid)+'</div>'+vendorHtml(ap.vendor)+'</div>'+
-        '<div class="meta"><span class="badge ch">ch '+ap.ch+'</span><span class="badge '+(open?'open':'')+'">'+esc(ap.enc)+'</span>'+sigBars(ap.rssi)+'</div>';
+    if(aps){lastAps=aps.slice().sort((a,b)=>b.rssi-a.rssi);renderChannels(lastAps);renderSummary(lastAps);}
+    apCount.textContent=lastAps.length;
+    if(!lastAps.length){apRows.innerHTML='<div class="empty"><span class="big">📭</span>Nessuna rete trovata.</div>';refreshButtons();return;}
+    const q=(apSearch.value||'').trim().toLowerCase();
+    const list=q?lastAps.filter(a=>[a.ssid,a.bssid,a.vendor].some(v=>(v||'').toLowerCase().includes(q))):lastAps;
+    if(!list.length){apRows.innerHTML='<div class="empty">Nessuna rete corrisponde a “'+esc(q)+'”.</div>';refreshButtons();return;}
+    apRows.innerHTML='';
+    for(const ap of list){
+      const el=document.createElement('div');
+      el.className='row ap s-'+sigClass(sigLevel(ap.rssi))+(ap.bssid===selectedBssid?' sel':'');el.dataset.bssid=ap.bssid;
+      const ec=encClass(ap.enc), onRadar=surveyOn&&radarTarget&&radarTarget.bssid===ap.bssid;
+      const nm=ap.ssid?'<span class="name" title="'+esc(ap.ssid)+'">'+esc(ap.ssid)+(onRadar?'<span class="radar-on">📡</span>':'')+'</span>':'<span class="name hidden">rete nascosta</span>';
+      el.innerHTML='<div class="info">'+nm+'<div class="bssid">'+esc(ap.bssid)+'</div>'+vendorHtml(ap.vendor)+'</div>'+
+        '<div class="tags"><span class="badge ch">ch '+esc(ap.ch)+'</span><span class="badge '+ec+'">'+(ec==='open'?'⚠ ':'')+esc(ap.enc)+'</span></div>'+sigBars(ap.rssi);
       el.onclick=()=>selectAP(ap);apRows.appendChild(el);
     }
     refreshButtons();
   }
-  function selectAP(ap){selectedSsid=ap.ssid;send({cmd:'select',bssid:ap.bssid,channel:parseInt(ap.ch,10)});log('select → '+(ap.ssid||ap.bssid));}
+  function selectAP(ap){selectedSsid=ap.ssid;setRadarTarget({bssid:ap.bssid,ch:parseInt(ap.ch,10),ssid:ap.ssid});send({cmd:'select',bssid:ap.bssid,channel:parseInt(ap.ch,10)});log('select → '+(ap.ssid||ap.bssid));}
   function renderSelected(bssid,ch,ssid){
     selectedBssid=bssid;if(ssid)selectedSsid=ssid;
     selBanner.className='target';
-    selBanner.innerHTML='🎯 <span class="ssid">'+esc(selectedSsid||'AP')+'</span><span class="pill">'+esc(bssid)+'</span><span class="pill">canale '+ch+'</span>';
+    selBanner.innerHTML='🎯 <span class="ssid">'+esc(selectedSsid||'AP')+'</span><span class="pill">'+esc(bssid)+'</span><span class="pill">canale '+ch+'</span><button class="ghost" id="btnRadarHere" style="margin-left:auto;padding:6px 12px"><span class="ic">📡</span>Radar</button>';
+    $('#btnRadarHere').onclick=()=>{if(!surveyOn)startSurvey();$('#radarCard').scrollIntoView({behavior:'smooth',block:'start'});};
     [...apRows.children].forEach(el=>el.classList&&el.classList.toggle('sel',el.dataset.bssid===bssid));
     staRows.innerHTML='<div class="empty">Premi “Trova station”.</div>';staCount.textContent='0';monBox.textContent='';lastStations=[];refreshButtons();
   }
@@ -259,7 +318,7 @@
     refreshButtons();
   }
 
-  // ---- survey ----
+  // ---- radar ----
   function quality(r){
     if(r>=-55)return{l:'Eccellente',c:'#3ddc84'};
     if(r>=-62)return{l:'Ottimo',c:'#3ddc84'};
@@ -268,26 +327,83 @@
     if(r>=-82)return{l:'Debole',c:'#ff8a2b'};
     return{l:'Pessimo',c:'#ff5a5a'};
   }
-  function onRssi(r){
+  function resetRadarStats(){hist.length=0;ema=null;emaHist=[];rMin=rMax=null;rN=rSum=0;lostCount=0;lastRssi=null;
+    rssiV.textContent='—';rssiV.style.color='';qual.textContent='in attesa';qual.style.color='var(--dim)';trendEl.textContent='';trendEl.className='trend';
+    qfill.style.width='0';rstats.innerHTML='';scopeEl.classList.remove('lost');drawSpark();}
+  function showRadarTarget(){
+    rTarget.innerHTML=radarTarget
+      ? esc(radarTarget.ssid||'rete nascosta')+'<small>'+esc(radarTarget.bssid)+' · canale '+radarTarget.ch+'</small>'
+      : 'Rete connessa alla board<small>tocca una rete nella lista per puntare il radar su quella</small>';
+  }
+  function setRadarTarget(t){
+    const changed=!radarTarget||radarTarget.bssid!==t.bssid;
+    radarTarget=t;showRadarTarget();
+    if(changed&&surveyOn){resetRadarStats();send({cmd:'survey',bssid:t.bssid,channel:t.ch});log('radar → '+(t.ssid||t.bssid));renderAPs();}
+  }
+  function onRssi(m){
+    if(m.mode==='target'&&radarTarget&&m.bssid&&m.bssid!==radarTarget.bssid)return; // campione vecchio
+    if(m.lost){
+      lostCount++;
+      if(lostCount>=2){scopeEl.classList.add('lost');qual.textContent='Segnale perso';qual.style.color='var(--faint)';trendEl.textContent='fuori portata o rete spenta';trendEl.className='trend';lastRssi=null;}
+      return;
+    }
+    lostCount=0;scopeEl.classList.remove('lost');
+    const r=m.rssi;lastRssi=r;
+    if(m.mode==='connected'&&m.ssid)rTarget.innerHTML=esc(m.ssid)+'<small>rete connessa alla board</small>';
     const q=quality(r),pct=Math.max(0,Math.min(100,Math.round(2*(r+95))));
     rssiV.textContent=r;rssiV.style.color=q.c;qual.textContent=q.l;qual.style.color=q.c;
     qfill.style.width=pct+'%';qfill.style.background=q.c;
-    gArc.style.stroke=q.c;gArc.style.strokeDashoffset=(327*(1-pct/100)).toFixed(0);
-    hist.push(r);if(hist.length>80)hist.shift();drawSpark();
+    const d=Math.round(18+pct*1.1);blip.style.setProperty('--d',d+'px');blip.style.setProperty('--c',q.c);
+    // media mobile + tendenza (caldo/freddo)
+    ema=ema==null?r:ema*0.6+r*0.4;emaHist.push(ema);if(emaHist.length>8)emaHist.shift();
+    if(emaHist.length>=5){const dl=ema-emaHist[0];
+      if(dl>=2){trendEl.textContent='🔥 Più caldo — ti stai avvicinando';trendEl.className='trend hot';}
+      else if(dl<=-2){trendEl.textContent='🧊 Più freddo — ti stai allontanando';trendEl.className='trend cold';}
+      else{trendEl.textContent='≈ stabile';trendEl.className='trend';}}
+    rN++;rSum+=r;rMin=rMin==null?r:Math.min(rMin,r);rMax=rMax==null?r:Math.max(rMax,r);
+    rstats.innerHTML='min <b>'+rMin+'</b> · media <b>'+Math.round(rSum/rN)+'</b> · max <b>'+rMax+'</b> · <b>'+rN+'</b> campioni';
+    hist.push(r);if(hist.length>120)hist.shift();drawSpark();
   }
   function drawSpark(){
     const c=spark,dpr=window.devicePixelRatio||1;const w=c.clientWidth,h=c.clientHeight;
+    if(!w)return;
     if(c.width!==w*dpr){c.width=w*dpr;c.height=h*dpr;}
     const x=c.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,w,h);
-    if(hist.length<2)return;
+    x.strokeStyle='rgba(255,255,255,.05)';x.lineWidth=1;
     const map=r=>h-((Math.max(-95,Math.min(-30,r))+95)/65)*h;
+    [-50,-70,-90].forEach(v=>{const y=Math.round(map(v))+.5;x.beginPath();x.moveTo(0,y);x.lineTo(w,y);x.stroke();});
+    if(hist.length<2)return;
     x.beginPath();x.lineWidth=2;x.strokeStyle='#35d0e0';
     hist.forEach((r,i)=>{const px=i/(hist.length-1)*w,py=map(r);i?x.lineTo(px,py):x.moveTo(px,py);});
     x.stroke();
     x.lineTo(w,h);x.lineTo(0,h);x.closePath();x.fillStyle='rgba(53,208,224,.08)';x.fill();
   }
-  function startSurvey(){surveyOn=true;btnSurvey.classList.add('on');btnSurvey.querySelector('.lbl').textContent='Ferma survey';btnSurvey.querySelector('.ic').textContent='■';hist.length=0;send({cmd:'survey'});log('survey avviata');}
-  function stopSurvey(){if(!surveyOn)return;surveyOn=false;btnSurvey.classList.remove('on');btnSurvey.querySelector('.lbl').textContent='Avvia survey';btnSurvey.querySelector('.ic').textContent='▶';send({cmd:'stop'});}
+  // bip stile Geiger: piu' forte il segnale, piu' fitti e acuti i bip
+  function beep(){
+    if(!soundOn||!surveyOn){beepTimer=null;return;}
+    let next=1200;
+    if(lastRssi!=null&&actx){
+      const pct=Math.max(0,Math.min(1,(lastRssi+95)/65));
+      const o=actx.createOscillator(),g=actx.createGain();
+      o.frequency.value=500+pct*900;g.gain.setValueAtTime(.0001,actx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.18,actx.currentTime+.01);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+.09);
+      o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+.1);
+      next=Math.round(900-pct*780);
+    }
+    beepTimer=setTimeout(beep,next);
+  }
+  function setSound(on){
+    soundOn=on;btnSound.classList.toggle('on',on);btnSound.querySelector('.ic').textContent=on?'🔊':'🔇';
+    if(on){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();actx.resume();}catch{}if(!beepTimer)beep();}
+  }
+  function startSurvey(){
+    surveyOn=true;scopeEl.classList.add('on');btnSurvey.classList.add('on');btnSurvey.querySelector('.lbl').textContent='Ferma radar';btnSurvey.querySelector('.ic').textContent='■';
+    resetRadarStats();
+    if(radarTarget){send({cmd:'survey',bssid:radarTarget.bssid,channel:radarTarget.ch});log('radar avviato su '+(radarTarget.ssid||radarTarget.bssid));}
+    else{send({cmd:'survey'});log('radar avviato sulla rete connessa');}
+    if(soundOn&&!beepTimer)beep();renderAPs();
+  }
+  function stopSurvey(){if(!surveyOn)return;surveyOn=false;scopeEl.classList.remove('on');btnSurvey.classList.remove('on');btnSurvey.querySelector('.lbl').textContent='Avvia radar';btnSurvey.querySelector('.ic').textContent='▶';send({cmd:'stop'});renderAPs();}
 
   // ---- auto-scan ----
   function setAuto(on){autoScan=on;btnAuto.classList.toggle('on',on);if(on){send({cmd:'scan'});autoTimer=setInterval(()=>{if(!scanning)send({cmd:'scan'});},5000);log('auto-scan ON');}else{clearInterval(autoTimer);autoTimer=null;}}
@@ -307,7 +423,7 @@
       case 'selected':renderSelected(m.bssid,m.channel,m.ssid);log('selezionato '+m.bssid);break;
       case 'stations':renderStations(m.stations||[]);log('ricevute '+(m.stations?m.stations.length:0)+' station');break;
       case 'monitor':monBox.innerHTML='📈 <b>'+m.packets+'</b> pacchetti in '+(m.window_ms/1000)+'s sul canale '+m.ch+' — '+m.stations_seen+' host visti.';log('monitor: '+m.packets+' pkt');break;
-      case 'rssi':onRssi(m.rssi);if(m.ssid)surveySsid.textContent='rete: '+m.ssid;break;
+      case 'rssi':onRssi(m);break;
       case 'error':log('errore: '+m.msg,true);break;
     }
   }
@@ -326,6 +442,8 @@
   btnStations.onclick=()=>{staRows.innerHTML='<div class="empty"><span class="spin"></span> sniffing… la board stacca l’uplink per qualche secondo</div>';send({cmd:'stations'});log('cerco station…');};
   btnMonitor.onclick=()=>{monBox.innerHTML='<span class="spin"></span> monitoraggio…';send({cmd:'monitor'});log('monitor…');};
   btnSurvey.onclick=()=>{surveyOn?stopSurvey():startSurvey();};
+  btnSound.onclick=()=>setSound(!soundOn);
+  apSearch.addEventListener('input',()=>renderAPs());
   window.addEventListener('resize',drawSpark);
   connect();
 })();

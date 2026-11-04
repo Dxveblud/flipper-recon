@@ -12,6 +12,14 @@ per scelta: restano su Marauder, da usare in locale sulla board.
       scan/station/monitor              127.0.0.1:8787 (systemd)           pannello (login)
 ```
 
+## Funzioni del pannello
+- **Scansione reti** con produttore (OUI), analisi canali, filtro, auto-scan ed export CSV.
+- **📡 Radar**: tocca una rete e premi *Radar* → segnale in tempo reale di quella rete,
+  con tendenza 🔥 più caldo / 🧊 più freddo, min/media/max, grafico e bip opzionale
+  (più vicino = bip più fitti). Senza rete selezionata misura la rete a cui è connessa la board.
+  La board fa uno scan mirato su un solo canale ogni ~0,5 s: **l'uplink resta su**.
+- **Station / Monitor** sull'AP selezionato (monitor mode, uplink staccato ~6 s).
+
 ## Struttura
 ```
 firmware/flipper_agent.ino   firmware agente (secret da compilare prima del flash)
@@ -57,7 +65,7 @@ sudo nginx -t && sudo systemctl reload nginx
 ```
 
 ## Firmware (board)
-Board: **ESP32S2 Dev Module**. Libreria: **WebSockets** (Markus Sattler).
+Board: **ESP32S2 Dev Module**, core **esp32 ≥ 2.0** (serve `scanNetworks` con filtro canale/BSSID per il radar). Libreria: **WebSockets** (Markus Sattler).
 Prima del flash compila in cima a `firmware/flipper_agent.ino`:
 `WIFI_SSID`, `WIFI_PASS`, `DEVICE_TOKEN` (= quello del relay). `RELAY_HOST` è già `flipper.dxveblud.dev`.
 Flash: tieni **BOOT** + tocca **RST**, poi carica (USB nativo). Opzione **USB CDC On Boot = Enabled** per avere i log.

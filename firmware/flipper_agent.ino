@@ -7,6 +7,9 @@
  *   - select    : fissa un AP target (bssid + canale)
  *   - stations  : elenca i client (station) che dialogano col target
  *   - monitor   : conta il traffico sul canale del target per N secondi
+ *   - survey    : radar RSSI live. Senza argomenti = rete a cui la board e' connessa;
+ *                 con {bssid, channel} = qualsiasi AP, via scan mirato su un solo
+ *                 canale (l'uplink resta su, nessun monitor mode)
  *   - stop       : annulla l'operazione in corso
  *
  * NON contiene deauth, beacon/probe flood, cattura handshake/PMKID, evil portal.
@@ -62,8 +65,13 @@ volatile uint32_t pktTotal = 0;
 
 String pendingSend = ""; // risultato da spedire quando il WS torna connesso
 
-bool surveying = false;  // modalita site survey: RSSI della rete connessa in live
+bool surveying = false;  // modalita site survey / radar: RSSI in live
 uint32_t lastSurvey = 0;
+bool    radarHasTarget = false;   // true = radar su un AP specifico, false = rete connessa
+uint8_t radarBssid[6] = {0};
+uint8_t radarChannel = 0;
+const uint32_t RADAR_INTERVAL_MS = 450;  // pausa tra un campione e l'altro
+const uint32_t RADAR_DWELL_MS    = 110;  // tempo di ascolto sul canale per campione
 
 // ---------------- util ----------------
 String macToStr(const uint8_t* m) {
@@ -230,8 +238,16 @@ void handleCommand(const String& msg){
   else if (cmd=="stations"){ startSniff(OP_STATIONS); }
   else if (cmd=="monitor"){ startSniff(OP_MONITOR); }
   else if (cmd=="survey"){
-    surveying = true; lastSurvey = 0;                 // RSSI live della rete connessa
-    wsSend("{\"type\":\"status\",\"state\":\"survey\"}");
+    String b = jGetStr(msg,"bssid");
+    long ch = jGetInt(msg,"channel",0);
+    uint8_t m[6];
+    if (b.length() && parseMac(b,m) && ch>=1 && ch<=14){
+      memcpy(radarBssid,m,6); radarChannel=(uint8_t)ch; radarHasTarget=true;   // radar su un AP qualsiasi
+    } else {
+      radarHasTarget=false;                                                    // rete connessa
+    }
+    surveying = true; lastSurvey = 0;
+    wsSend(String("{\"type\":\"status\",\"state\":\"survey\",\"mode\":\"")+(radarHasTarget?"target":"connected")+"\"}");
   }
   else if (cmd=="stop"){
     surveying = false;
@@ -281,9 +297,22 @@ void loop(){
   if (pendingSend.length() && WiFi.status()==WL_CONNECTED && ws.isConnected()){
     wsSend(pendingSend); pendingSend="";
   }
-  // site survey: RSSI live della rete connessa, ogni ~700ms, uplink attivo
-  if (surveying && WiFi.status()==WL_CONNECTED && ws.isConnected() && millis()-lastSurvey >= 700){
-    lastSurvey = millis();
-    wsSend("{\"type\":\"rssi\",\"rssi\":" + String(WiFi.RSSI()) + ",\"ssid\":\"" + jsonEscape(WiFi.SSID()) + "\"}");
+  // site survey / radar: RSSI live, uplink attivo
+  if (surveying && WiFi.status()==WL_CONNECTED && ws.isConnected()){
+    if (!radarHasTarget && millis()-lastSurvey >= 700){
+      lastSurvey = millis();
+      wsSend("{\"type\":\"rssi\",\"mode\":\"connected\",\"rssi\":" + String(WiFi.RSSI()) + ",\"ssid\":\"" + jsonEscape(WiFi.SSID()) + "\"}");
+    } else if (radarHasTarget && millis()-lastSurvey >= RADAR_INTERVAL_MS){
+      // scan attivo su UN canale, filtrato sul BSSID: ~0.1s fuori canale, poi torna sulla rete
+      int n = WiFi.scanNetworks(false, true, false, RADAR_DWELL_MS, radarChannel, nullptr, radarBssid);
+      String b = macToStr(radarBssid);
+      if (n > 0){
+        wsSend("{\"type\":\"rssi\",\"mode\":\"target\",\"bssid\":\""+b+"\",\"rssi\":" + String(WiFi.RSSI(0)) + ",\"ssid\":\"" + jsonEscape(WiFi.SSID(0)) + "\"}");
+      } else {
+        wsSend("{\"type\":\"rssi\",\"mode\":\"target\",\"bssid\":\""+b+"\",\"lost\":true}");
+      }
+      WiFi.scanDelete();
+      lastSurvey = millis();   // l'intervallo parte dalla fine dello scan
+    }
   }
 }

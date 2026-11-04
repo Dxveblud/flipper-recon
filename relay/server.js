@@ -13,6 +13,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { WebSocketServer } from 'ws';
 
@@ -21,13 +22,34 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT          = parseInt(process.env.PORT || '8787', 10);
 const DEVICE_TOKEN  = process.env.DEVICE_TOKEN  || '';
 const VIEWER_TOKEN  = process.env.VIEWER_TOKEN  || '';
+const PANEL_KEY     = process.env.PANEL_KEY     || '';   // chiave d'accesso al pannello (sul tag NFC)
 const BASE_PATH     = process.env.BASE_PATH || '/flipper';
 const WS_PATH       = BASE_PATH + '/ws';
 const PAGE_FILE     = path.join(__dirname, 'panel.html');
+const COOKIE_NAME   = 'fr_key';
 
 if (!DEVICE_TOKEN || !VIEWER_TOKEN) {
   console.error('ERRORE: imposta DEVICE_TOKEN e VIEWER_TOKEN come variabili d\'ambiente.');
   process.exit(1);
+}
+if (!PANEL_KEY) {
+  console.error('ERRORE: imposta PANEL_KEY (la chiave d\'accesso sul tag NFC). Generane una: openssl rand -hex 32');
+  process.exit(1);
+}
+
+// confronto a tempo costante (evita timing attack sulla chiave)
+function keyOk(given) {
+  if (typeof given !== 'string' || given.length !== PANEL_KEY.length) return false;
+  try { return crypto.timingSafeEqual(Buffer.from(given), Buffer.from(PANEL_KEY)); }
+  catch { return false; }
+}
+function getCookie(req, name) {
+  const h = req.headers.cookie || '';
+  for (const part of h.split(';')) {
+    const i = part.indexOf('=');
+    if (i > -1 && part.slice(0, i).trim() === name) return decodeURIComponent(part.slice(i + 1).trim());
+  }
+  return null;
 }
 
 const ALLOWED_CMDS = new Set(['scan', 'select', 'stations', 'monitor', 'survey', 'stop']);
@@ -53,8 +75,34 @@ function broadcastToUI(obj) {
 
 // ---------------- HTTP: serve il pannello (letto ad ogni richiesta) ----------------
 const server = http.createServer((req, res) => {
-  const url = (req.url || '').split('?')[0];
+  const [url, qs] = (req.url || '').split('?');
   if (req.method === 'GET' && (url === BASE_PATH || url === BASE_PATH + '/')) {
+    const keyInUrl = new URLSearchParams(qs || '').get('k');
+
+    // 1) chiave nel link (dal tag NFC): valida -> posa un cookie e togli la chiave dall'URL
+    if (keyInUrl != null) {
+      if (!keyOk(keyInUrl)) { res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' }); res.end('Chiave non valida.'); return; }
+      res.writeHead(302, {
+        'Location': BASE_PATH,
+        // cookie di sola trasmissione server->browser, 30 giorni, non leggibile da JS
+        'Set-Cookie': `${COOKIE_NAME}=${encodeURIComponent(PANEL_KEY)}; Path=${BASE_PATH}; Max-Age=2592000; HttpOnly; Secure; SameSite=Lax`,
+        'Cache-Control': 'no-store'
+      });
+      res.end();
+      return;
+    }
+
+    // 2) niente chiave nell'URL: deve esserci il cookie valido (reload, ritorno nel browser)
+    if (!keyOk(getCookie(req, COOKIE_NAME))) {
+      res.writeHead(403, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+      res.end('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+        + '<body style="font-family:-apple-system,sans-serif;background:#0a0d12;color:#e9eef4;display:grid;place-items:center;min-height:100vh;margin:0;text-align:center;padding:24px">'
+        + '<div><div style="font-size:40px">🔒</div><h2>Accesso con chiave</h2>'
+        + '<p style="color:#8294a8;max-width:320px">Avvicina il telefono al tag NFC del Flipper per aprire il pannello.</p></div>');
+      return;
+    }
+
+    // 3) cookie ok: servi il pannello
     let html;
     try { html = fs.readFileSync(PAGE_FILE, 'utf8'); }
     catch { res.writeHead(500); res.end('panel.html mancante'); return; }

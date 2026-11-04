@@ -12,6 +12,9 @@ After=network.target
 WorkingDirectory=/home/ubuntu/flipper-recon/relay
 Environment=DEVICE_TOKEN=CHANGEME_DEVICE_TOKEN
 Environment=VIEWER_TOKEN=CHANGEME_VIEWER_TOKEN
+# Chiave d'accesso al pannello (quella che finisce sul tag NFC). Generane una:
+#   openssl rand -hex 32
+Environment=PANEL_KEY=CHANGEME_PANEL_KEY
 Environment=PORT=8787
 ExecStart=/usr/bin/node server.js
 Restart=always

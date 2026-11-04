@@ -73,5 +73,17 @@ Flash: tieni **BOOT** + tocca **RST**, poi carica (USB nativo). Opzione **USB CD
 ## Note
 - La board deve restare alimentata e in copertura della rete Wi-Fi configurata.
 - Station/Monitor: la radio singola dell'S2 stacca l'uplink per ~6s e poi riconnette → i risultati arrivano a raffiche.
-- Login pannello: utente + password in `/etc/nginx/.flipper_htpasswd` (sulla VM, non in git).
+- **Accesso al pannello: solo con CHIAVE (tag NFC).** Niente piu' utente/password.
+  Si entra solo aprendo `https://flipper.dxveblud.dev/flipper?k=<CHIAVE>`; il relay
+  controlla la chiave (confronto a tempo costante), posa un cookie di 30 giorni e
+  pulisce l'URL. Senza chiave: pagina "Accesso con chiave" (403).
+  - **Imposta la chiave** sulla VM (nel service, non in git):
+    `openssl rand -hex 32` -> mettila in `Environment=PANEL_KEY=...` del unit, poi
+    `sudo systemctl daemon-reload && sudo systemctl restart flipper-relay`.
+  - **Scrivi il tag NFC col Flipper Zero**: apri 125 kHz/NFC -> *NFC -> Add Manually ->
+    NDEF* (oppure *Write* su un tag NTAG215 vuoto) e salva un record **URL**:
+    `https://flipper.dxveblud.dev/flipper?k=<LA_TUA_CHIAVE>`. Avvicina il tag: iOS
+    (iPhone 15 Pro, lettura NFC in background) mostra la notifica e apre il pannello gia' sbloccato.
+  - La chiave e' come una password: chi ha il link entra. Se la perdi, cambiane il valore
+    nel service, riavvia e riscrivi il tag.
 - I token e le password Wi-Fi **non** stanno nel repo.
